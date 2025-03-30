@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client-js"
+}
+  
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int     @id @default(autoincrement())
+  first_name    String  
+  last_name     String  
+  email         String  @unique
+  password      String
+  phone         Int
+  age           Int
+  gender        Gender
+  profile_image String
+  verified      Boolean
+  cars          Car[]
+  selledCars    SelledCar[] @relation("BuyerCars")
+  chatRoomsAsCreator ChatRoom[] @relation("ChatRoomCreator")
+  chatRoomsAsGuest   ChatRoom[] @relation("ChatRoomGuest")
+}
+
+enum Gender {
+  male
+  female
+  private
+}
+
+model Car {
+  id          Int     @id @default(autoincrement())
+  owner_id    Int
+  owner       User    @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  make        String?
+  model       String?
+  year        Int?
+  fuel_type   FuelType?
+  transmission Transmission?
+  body_type   BodyType?
+  engine      String?
+  horsepower  Int?
+  mileage     Int?
+  state       String?
+  price       Decimal?
+  location    String?
+  description String?
+  media       CarMedia[]
+  listing     Listing[]
+  selledCar   SelledCar?
+}
+
+enum FuelType {
+  Petrol
+  Diesel
+  Hybrid
+  Electric
+}
+
+enum Transmission {
+  Automatic
+  Manual
+}
+
+enum BodyType {
+  Sedan
+  SUV
+  Coupe
+  Hatchback
+  Convertible
+  Truck
+  Van
+}
+
+model CarMedia {
+  id     Int    @id @default(autoincrement())
+  carId  Int    @unique
+  car    Car    @relation(fields: [carId], references: [id], onDelete: Cascade)
+  link   String
+  type   MediaType
+}
+
+enum MediaType {
+  image
+  video
+  pdf
+}
+
+model ChatRoom {
+  id       Int  @id @default(autoincrement())
+  creatorId Int
+  creator  User @relation("ChatRoomCreator", fields: [creatorId], references: [id])
+  guestId  Int
+  guest    User @relation("ChatRoomGuest", fields: [guestId], references: [id])
+  createAt DateTime @default(now())
+}
+
+model Listing {
+  id             Int      @id @default(autoincrement())
+  carId          Int     
+  car            Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
+  status         ListingStatus @default(Available)
+  call_allowed   Boolean @default(true)
+  message_allowed Boolean @default(true)
+  create_at      DateTime @default(now())
+}
+
+enum ListingStatus {
+  Available
+  Pending
+  Sold
+  Reserved
+  Expired
+  Withdrawn
+}
+
+model SelledCar {
+  id       Int     @id @default(autoincrement())
+  car_id   Int     @unique  // Ensure one-to-one relation
+  car      Car     @relation(fields: [car_id], references: [id], onDelete: Cascade)
+  price    Float
+  buyer_id Int
+  buyer    User    @relation(name: "BuyerCars", fields: [buyer_id], references: [id], onDelete: Cascade)
+  sell_at  DateTime @default(now())
+}
