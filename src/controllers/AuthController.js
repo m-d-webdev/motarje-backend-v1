@@ -1,7 +1,9 @@
 import * as AuthServices from '../services/AuthServices.js'
 import gen_Refreshtoken from '../utils/auth/gen_Refreshtoken.js';
 import gen_token from '../utils/auth/generateToken.js';
+import Gen_TokenFromRefreshtoken from '../utils/auth/GetTokenFromRefreshtoken.js';
 
+// ------------------------------------------
 
 export const login = async (req, res) => {
     try {
@@ -68,11 +70,43 @@ export const register = async (req, res) => {
     }
 };
 
+// ------------------------------------------
+
+export const GetTokenFromRefreshtoken = async (req, res) => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+        if (!refreshToken) return res.status(401).json({
+            ok: false,
+            error: "no token matched on the request !",
+        });
+
+        let token = await Gen_TokenFromRefreshtoken(refreshToken)
+
+        return res.status(200).json({
+            ok: true,
+            data: "Save the access token and send it with every required auth request !",
+            accessToken: token
+        });
+    } catch (error) {
+        console.log(error);
+
+        return res.status(401).json({
+            ok: false,
+            error: error.message,
+        });
+    }
+};
+
+
+// ------------------------------------------
+
+
+
 export const logout = async (req, res) => {
     try {
 
         res.clearCookie("refreshToken", { httpOnly: true, secure: process.env.NDOE_ENV == "production" });
-            
+
         return res.status(200).json({
             ok: true,
             data: "loged out successfully !",

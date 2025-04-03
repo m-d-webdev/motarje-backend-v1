@@ -6,6 +6,9 @@ import cors from 'cors'
 import TestRouter from '../routes/testRoutes.js';
 import AuthRouter from '../routes/AuthRoutres.js';
 import cookieParser from 'cookie-parser';
+import ValidationRoutes from '../routes/ValidateRoutes.js';
+import ProfileRoutes from '../routes/ProfileRoutes.js';
+import CarRoutes from '../routes/CarRoutes.js';
 const FRONENTURL = process.env.FRONENT_URL;
 // -- 
 const app = express();
@@ -28,8 +31,13 @@ configDotenv();
 
 
 // ---------------
+
+
 app.use(TestRouter)
 app.use(AuthRouter)
+app.use(ValidationRoutes)
+app.use('/profile', ProfileRoutes);
+app.use('/cars', CarRoutes);
 
 // ---------------
 

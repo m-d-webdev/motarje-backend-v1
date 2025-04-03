@@ -3,7 +3,7 @@ import app from "./app.js"
 
 
 
-// MONGODB_CONNECT();
+MONGODB_CONNECT();
 
 app.listen(process.env.PORT ,'0.0.0.0', (error) => {
 

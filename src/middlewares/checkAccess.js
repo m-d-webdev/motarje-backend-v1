@@ -1,10 +1,10 @@
-import jwt, { decode } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 
 
 const CheckAccess = async (req, res, next) => {
     try {
         const accessToken = req.headers['authorization']?.split(" ")[1];
-        
+
         if (!accessToken) return res.status(401).json({
             ok: false,
             reason: "Can't find acccess token on the request "
@@ -18,9 +18,13 @@ const CheckAccess = async (req, res, next) => {
                     reason: "invalid token "
                 });
 
-                req.user = {
+                req.body.user = {
                     id: decoded.id,
-                    email: decode.email
+                    email: decoded.email
+                }
+                req.query.user = {
+                    id: decoded.id,
+                    email: decoded.email
                 }
                 return next()
             }

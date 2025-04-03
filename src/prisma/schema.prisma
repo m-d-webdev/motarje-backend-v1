@@ -17,7 +17,7 @@ model User {
   age           Int
   gender        Gender
   profile_image String
-  verified      Boolean
+  verified      Boolean @default(true)
   cars          Car[]
   selledCars    SelledCar[] @relation("BuyerCars")
   chatRoomsAsCreator ChatRoom[] @relation("ChatRoomCreator")
@@ -44,6 +44,7 @@ model Car {
   horsepower  Int?
   mileage     Int?
   state       String?
+  isPriceFix  Boolean? @default(true)
   price       Decimal?
   location    String?
   description String?
