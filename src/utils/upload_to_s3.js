@@ -1,4 +1,4 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import s3 from "../config/aws/s3.js";
 import { configDotenv } from "dotenv";
 configDotenv();
@@ -17,7 +17,7 @@ const UPLOAD_TO_S3 = async ({
     truncated = false,
     mimetype = "",
     md5 = "",
-    userId =Math.floor( Math.random() * 4653),
+    userId = Math.floor(Math.random() * 4653),
     FOLDER_IN_S3 = "",
     mv = () => console.log("No file move function provided"),
 }) => {
@@ -27,7 +27,7 @@ const UPLOAD_TO_S3 = async ({
 
                 const extention = name.substring(name.lastIndexOf('.'));
                 const fileName = `${FOLDER_IN_S3}/${Date.now()}_${userId}_${extention}`;
-                
+
                 const commande = new PutObjectCommand({
                     Bucket: AWS_S3_BUCKETNAME,
                     Key: fileName,
@@ -37,20 +37,14 @@ const UPLOAD_TO_S3 = async ({
 
                 await s3.send(commande);
                 const newFileUrl = `https://${AWS_S3_BUCKETNAME}.s3.${AWS_REGION}.amazonaws.com/${fileName}`;
-
-
-                resolve({
-                    message: "file uploaded successfully !",
-                    ok: true,
-                    url: newFileUrl,
-                });
+                
+                resolve(newFileUrl);
             } catch (err) {
                 reject(err);
             }
         }
     )
 };
-
 
 
 
