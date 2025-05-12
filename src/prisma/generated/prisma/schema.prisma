@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+model User {
+  id                 Int         @id @default(autoincrement())
+  fullName           String
+  email              String      @unique
+  password           String
+  cars               Car[]
+  selledCars         SelledCar[] @relation("BuyerCars")
+  chatRoomsAsCreator ChatRoom[]  @relation("ChatRoomCreator")
+  chatRoomsAsGuest   ChatRoom[]  @relation("ChatRoomGuest")
+
+  profile Profile?
+}
+
+model Profile {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique
+  user          User     @relation(fields: [userId], references: [id])
+  phone         String?
+  bio           String?
+  age           Int?
+  address       String?
+  gender        Gender?  @default(private)
+  profile_image String?
+  verified      Boolean? @default(true)
+}
+
+enum Gender {
+  male
+  female
+  private
+}
+
+model Car {
+  id           Int           @id @default(autoincrement())
+  owner_id     Int
+  owner        User          @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  make         String?
+  model        String?
+  year         String?
+  fuel_type    FuelType?
+  transmission Transmission?
+  body_type    BodyType?
+  engine       String?
+  horsepower   String?
+  mileage      String?
+  state        String?
+  isPriceFix   String?
+  price        String?
+  location     String?
+  description  String?
+  media        CarMedia[]
+  listing      Listing[]
+  selledCar    SelledCar?
+}
+
+enum FuelType {
+  Petrol
+  Diesel
+  Hybrid
+  Electric
+}
+
+enum Transmission {
+  Automatic
+  Manual
+}
+
+enum BodyType {
+  Sedan
+  SUV
+  Coupe
+  Hatchback
+  Convertible
+  Truck
+  Van
+}
+
+model CarMedia {
+  id    Int       @id @default(autoincrement())
+  carId Int
+  car   Car       @relation(fields: [carId], references: [id], onDelete: Cascade)
+  link  String
+  type  MediaType
+}
+
+enum MediaType {
+  image
+  video
+  pdf
+}
+
+model ChatRoom {
+  id        Int      @id @default(autoincrement())
+  creatorId Int
+  creator   User     @relation("ChatRoomCreator", fields: [creatorId], references: [id])
+  guestId   Int
+  guest     User     @relation("ChatRoomGuest", fields: [guestId], references: [id])
+  createAt  DateTime @default(now())
+}
+
+model Listing {
+  id              Int           @id @default(autoincrement())
+  carId           Int
+  car             Car           @relation(fields: [carId], references: [id], onDelete: Cascade)
+  status          ListingStatus @default(Available)
+  call_allowed    Boolean       @default(true)
+  message_allowed Boolean       @default(true)
+  create_at       DateTime      @default(now())
+}
+
+enum ListingStatus {
+  Available
+  Pending
+  Sold
+  Reserved
+  Expired
+  Withdrawn
+}
+
+model SelledCar {
+  id       Int      @id @default(autoincrement())
+  car_id   Int      @unique // Ensure one-to-one relation
+  car      Car      @relation(fields: [car_id], references: [id], onDelete: Cascade)
+  price    Float
+  buyer_id Int
+  buyer    User     @relation(name: "BuyerCars", fields: [buyer_id], references: [id], onDelete: Cascade)
+  sell_at  DateTime @default(now())
+}

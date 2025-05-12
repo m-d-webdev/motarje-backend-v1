@@ -1,5 +1,4 @@
-import prisma from "../prisma/SetUp.js";
-import Prisma from "../prisma/SetUp.js";
+import Prisma from "../Prisma/SetUp.js";
 import bcrypt from 'bcrypt'
 import gen_token from "../utils/auth/generateToken.js";
 
@@ -25,48 +24,45 @@ const PrivateUserPic = "https://i.pinimg.com/236x/15/0f/a8/150fa8800b0a0d5633abc
 
 export const register = ({
 
-    first_name = "",
-    last_name = "",
-    age = 0,
+    fullName = "",
+    phone = "",
+    address = "",
     email = "",
-    gender = null,
     password = null,
-    profile_image = null,
-    phone = null,
-    verified = false
 
 }) => {
     return new Promise(
         async (resolve, reject) => {
             try {
 
-                if (profile_image == null) {
-                    if (gender != null) {
-                        profile_image = gender == "private" ? PrivateUserPic : (gender == "male" ? Math.floor(Math.random() * malesPic.length) : Math.floor(Math.random() * femalePics.length));
-                    } else {
-                        gender = "private";
-                        profile_image = PrivateUserPic;
-                    }
-                };
-
                 const salt = await bcrypt.genSalt(10);
                 let hashedPassword = await bcrypt.hash(password, salt);
                 const data = await Prisma.user.create({
                     data: {
-                        first_name,
-                        last_name,
-                        age,
+                        fullName,
                         email,
-                        gender,
                         password: hashedPassword,
-                        phone,
-                        profile_image,
-                        verified
                     }
                 });
+
+                // await Prisma.profile.create({
+                //     data: {
+                //         user: data.id,
+                //         address: "",
+                //         phone: "",
+                //         bio: null,
+                //         age: null,
+                //         gender: "private",
+                //         profile_image: null,
+                //         verified: false,
+                //         userId: null
+                //     }
+                // });
+
                 delete data['password']
                 resolve(data);
             } catch (error) {
+                console.log("❌ error creating user  ", error);
 
                 reject({
                     message: {
@@ -84,7 +80,7 @@ export const login = ({ email, password }) => {
     return new Promise(
         async (resolve, reject) => {
             try {
-                const user = await prisma.user.findFirst({
+                const user = await Prisma.user.findFirst({
                     where: {
                         email
                     }
@@ -98,13 +94,13 @@ export const login = ({ email, password }) => {
                 };
 
                 const isMath = await bcrypt.compare(password, user.password)
-            
+
                 if (!isMath) {
                     return reject({ message: "incorrect password", key: "Password_incorrect" });
                 };
 
                 delete user['password'];
-                
+
                 resolve(user);
 
             } catch (error) {

@@ -1,27 +1,40 @@
+
+  
 generator client {
   provider = "prisma-client-js"
+  output   = "./generated/prisma"
 }
-  
+
+
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DB_URL")
 }
 
 model User {
   id            Int     @id @default(autoincrement())
-  first_name    String  
-  last_name     String  
+  fullName      String  
   email         String  @unique
   password      String
-  phone         Int
-  age           Int
-  gender        Gender
-  profile_image String
-  verified      Boolean @default(true)
   cars          Car[]
   selledCars    SelledCar[] @relation("BuyerCars")
   chatRoomsAsCreator ChatRoom[] @relation("ChatRoomCreator")
   chatRoomsAsGuest   ChatRoom[] @relation("ChatRoomGuest")
+  
+  profile Profile?
+}
+
+model Profile {
+  id            Int    @id @default(autoincrement())
+  userId        Int    @unique
+  user          User @relation(fields:[userId] , references:[id])
+  phone         String?
+  bio           String?
+  age           Int?
+  address       String?  
+  gender        Gender? @default(private)
+  profile_image String?
+  verified      Boolean? @default(true)
 }
 
 enum Gender {
@@ -29,6 +42,7 @@ enum Gender {
   female
   private
 }
+
 
 model Car {
   id          Int     @id @default(autoincrement())
@@ -126,3 +140,4 @@ model SelledCar {
   buyer    User    @relation(name: "BuyerCars", fields: [buyer_id], references: [id], onDelete: Cascade)
   sell_at  DateTime @default(now())
 }
+

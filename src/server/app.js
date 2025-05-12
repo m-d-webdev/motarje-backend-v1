@@ -14,12 +14,12 @@ const FRONENTURL = process.env.FRONENT_URL;
 const app = express();
 
 app.use(cors({
+    origin: ["http://localhost:3000", process.env.FRONTEND_URL],
     credentials: true,
-    methods: '*',
-    origin: FRONENTURL
+    methods: ["GET", "POST", "PUT"]
 }));
 // --
-app.use(fileUpload());
+// app.use(fileUpload());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true, limit: "100MG" }));
 app.use(cookieParser())
@@ -27,8 +27,6 @@ app.use(cookieParser())
 
 // --
 configDotenv();
-
-
 
 // ---------------
 

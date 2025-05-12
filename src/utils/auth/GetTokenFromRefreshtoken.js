@@ -14,7 +14,7 @@ const Gen_TokenFromRefreshtoken = (RefreshToken) => {
                             message: error.message ? error.message : error
                         });
                     const token = gen_token({ id: decoded.id, email: decoded.email });
-                    resolve(token);
+                    resolve({ token, userId: decoded.id });
                 });
 
             } catch (error) {

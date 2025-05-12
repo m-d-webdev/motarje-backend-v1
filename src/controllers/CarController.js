@@ -3,7 +3,7 @@ import * as Cars from '../services/CarsServices.js';
 
 export const GetCars = async (req, res) => {
     try {
-        const {  from, liked_type } = req.query;
+        const { from, liked_type } = req.query;
         const cars = await Cars.FetchAll({ from, liked_type: liked_type ? liked_type : null })
         return res.status(200).json({
             ok: true,
@@ -19,9 +19,10 @@ export const GetCars = async (req, res) => {
         });
     }
 };
+
 export const Get_a_Car = async (req, res) => {
     try {
-        const {  carId } = req.body;
+        const { carId } = req.body;
         const car = await Cars.Get_data({ carId })
         return res.status(200).json({
             ok: true,
@@ -41,10 +42,10 @@ export const Get_a_Car = async (req, res) => {
 export const AddCar = async (req, res) => {
     try {
 
-        const { user } = req.body;
+        const user = req.user;
         const { carMedia } = req.files;
         console.log(user);
-        
+
         const data = await Cars.store({
             data: { ...req.body, owner_id: user.id },
             files: carMedia
@@ -66,7 +67,8 @@ export const AddCar = async (req, res) => {
 export const UpdateCar = async (req, res) => {
     try {
 
-        const { user, carId, deletedFiles } = req.body;
+        const { carId, deletedFiles } = req.body;
+        const user = req.user
         const { carMedia } = req.files;
 
         const data = await Cars.update({
@@ -93,7 +95,7 @@ export const UpdateCar = async (req, res) => {
 export const DeleteCar = async (req, res) => {
     try {
 
-        const { user, carId } = req.body;
+        const { carId } = req.body;
         const data = await Cars.destroy({ carId });
 
         return res.status(200).json({

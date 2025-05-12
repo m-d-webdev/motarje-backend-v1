@@ -1,13 +1,14 @@
-import SEND_MESSAGE from "../utils/validation/SEND_MESSAGES.js";
+// import SEND_MESSAGE from "../utils/validation/SEND_MESSAGES.js";
 import OtpHistory from "../mongodb/models/OtpHistory.js"
 import prisma from "../prisma/SetUp.js";
 import gen_otp_text from '../utils/validation/gen_opt_text.js';
 
 export const SendOtp = async (req, res) => {
- 
+
     try {
 
-        const { userEmail, clientName, user } = req.body;
+        const { clientEmail, clientName } = req.body;
+        const user = req.user;
 
         const CODE = Math.floor(Math.random() * 8545687).toString().split("").slice(0, 6).join("");
 
@@ -18,7 +19,7 @@ export const SendOtp = async (req, res) => {
 
         const emailText = gen_otp_text({ clientName, CODE });
 
-        let sid = await SEND_MESSAGE({ body: emailText, to: userEmail, subject: "Your One-Time Password (OTP) for Secure Access " });
+        // let sid = await SEND_MESSAGE({ body: emailText, to: clientEmail, subject: "Your One-Time Password (OTP) for Secure Access " });
 
         return res.status(200).json({
             ok: true,
@@ -40,7 +41,8 @@ export const SendOtp = async (req, res) => {
 export const ValidateOtp = async (req, res) => {
     try {
 
-        const { entredCode, savedMessageId, user } = req.body;
+        const { entredCode, savedMessageId } = req.body;
+        const user = req.user
         if (!entredCode || !entredCode) return res.status(400).json({
             ok: false,
             error: "invalid credential "
@@ -61,7 +63,7 @@ export const ValidateOtp = async (req, res) => {
 
         const sendedTime = new Date(dbRes.createAt).getTime();
         const now = Date.now();
-      
+
         console.log('sent time =>', sendedTime);
         console.log('now =>', now);
 
@@ -69,7 +71,7 @@ export const ValidateOtp = async (req, res) => {
 
         console.log(min_diff);
 
-        
+
         if (min_diff > 6) return res.status(400).json({
             ok: false,
             error: "time out !"
@@ -105,10 +107,10 @@ export const ValidateOtp = async (req, res) => {
                 error: "Invalid code ",
             });
         };
-        
+
 
     } catch (error) {
-    
+
         return res.status(500).json({
             ok: false,
             error: error.message,

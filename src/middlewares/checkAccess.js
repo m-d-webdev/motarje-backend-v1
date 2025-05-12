@@ -18,14 +18,11 @@ const CheckAccess = async (req, res, next) => {
                     reason: "invalid token "
                 });
 
-                req.body.user = {
+                req.user = {
                     id: decoded.id,
                     email: decoded.email
                 }
-                req.query.user = {
-                    id: decoded.id,
-                    email: decoded.email
-                }
+
                 return next()
             }
         );
